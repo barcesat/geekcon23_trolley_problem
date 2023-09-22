@@ -12,7 +12,7 @@ descision_timeout = 10.0
 
 def update_timer():
     slider.set_value((slider.value + 0.1) % 10.1)
-    print (slider.value)
+    # print (slider.value)
     if slider.value >= 10.0:
         slider.set_value(0.0)
         countdown.deactivate()
@@ -27,7 +27,7 @@ def refresh_choices(random_index, image_files_a, image_files_b):
         print("selecting choice index: "+str(random_index))
         # Select the corresponding images
         selected_image_a = image_files_a[random_index]
-        selected_image_b = image_files_b[random_index]
+        selected_image_b = selected_image_a
         print("A: ", selected_image_a, "B: ", selected_image_b)
 
         # Read and display the text file for the selected image
@@ -51,10 +51,12 @@ def refresh_choices(random_index, image_files_a, image_files_b):
 def display_index(random_index, selected_image_a, selected_image_b, text_a, text_b):
     grid.clear()
     with grid:
-        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: select_image('A')).style('max-height: 300px w-1/2').props('flat bordered') as image_holder_a:
+        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: select_image('A')).style(
+            'max-height: 300px  width: 500px').props('flat bordered') as image_holder_a:
             a_button = ui.button(text=text_a, on_click=lambda: select_image('A'), color="blue").classes('text-h3 w-full absolute-top justify-center')
 
-        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: select_image('B')).style('max-height: 300px w-1/2').props('flat bordered')  as image_holder_b:
+        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: select_image('B')).style(
+            'max-height: 300px width: 500px').props('flat bordered')  as image_holder_b:
             b_button = ui.button(text=text_b, on_click=lambda: select_image('B'), color="red").classes('text-h3 w-full absolute-top justify-center')
 
         with ui.row():
