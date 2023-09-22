@@ -49,13 +49,6 @@ def refresh_choices(random_index, image_files_a, image_files_b):
         return selected_image_a, selected_image_b, text_a, text_b
 
 def display_index(random_index, selected_image_a, selected_image_b, text_a, text_b):
-    # timer = ui.timer(0.1, lambda: slider.set_value((slider.value + 0.01) % 1.0))
-    # ui.notify('NONE').bind_value_to(timer, 'active')
-    # if slider.value == 1.0:
-    #     select_image('NONE')
-    # if countdown._is_canceled:
-    #     countdown.
-    
     grid.clear()
     with grid:
         with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: select_image('A')).style('max-height: 300px w-1/2').props('flat bordered') as image_holder_a:
@@ -84,6 +77,7 @@ def select_image(selection):
         countdown.activate()
         return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
     
+    # Implement your logic here based on 'selected_image'
     if arduino.port_opened_successfully:
         try:
             if selection == "A":
@@ -93,8 +87,9 @@ def select_image(selection):
             print("Arduino Response:", response)
         except:
             print("Arduino is Disconnected!")
+            ui.notify("Trolley is Disconnected!", type='negative')
     # Handle user's selection (e.g., load the selected image, update text, etc.)
-    # Implement your logic here based on 'selected_image'
+    
     return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
 
 if __name__ in {"__main__", "__mp_main__"}:
