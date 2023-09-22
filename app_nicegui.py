@@ -93,7 +93,7 @@ def select_image(selection):
     return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
 
 if __name__ in {"__main__", "__mp_main__"}:
-    arduino = ArduinoController(port="/dev/ttyACM0")
+    arduino = ArduinoController()#port="/dev/ttyACM0")
     if arduino.port_opened_successfully:
         print("Arduino is Connected!")
     else:

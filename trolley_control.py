@@ -4,6 +4,7 @@ import platform
 
 class ArduinoController:
     def __init__(self, port=None):
+        self.port_opened_successfully = False
         if port is None:
             # Detect the operating system and set the Arduino serial port accordingly
             if platform.system() == "Windows":
