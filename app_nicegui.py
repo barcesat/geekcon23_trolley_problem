@@ -1,6 +1,8 @@
 import os
 from nicegui import ui
 import random
+from trolley_control import ArduinoController
+
 
 # Set the paths to your folders A and B
 folder_a_path = 'static/images/A/'
@@ -53,30 +55,48 @@ def select_image(selection):
     print("user has selected: ",selection)
     random_index = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
     selected_image_a, selected_image_b, text_a, text_b = refresh_choices(random_index, image_files_a, image_files_b)
+    if arduino.port_opened_successfully:
+        try:
+            if selection == "A":
+                response = arduino.choose_track_1()
+            elif selection == "B":
+                response = arduino.choose_track_2()
+            print("Arduino Response:", response)
+        except:
+            print("Arduino is Disconnected!")
     # Handle user's selection (e.g., load the selected image, update text, etc.)
     # Implement your logic here based on 'selected_image'
     return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
 
 if __name__ in {"__main__", "__mp_main__"}:
-    # Get the list of image files from both folders
-    image_files_a = [filename for filename in os.listdir(folder_a_path) if filename.endswith((".jpg", ".png"))]
-    image_files_b = [filename for filename in os.listdir(folder_b_path) if filename.endswith((".jpg", ".png"))]
-    print("got", str(len(image_files_a))," files on A")
-    print("got", str(len(image_files_b))," files on B")
-    with ui.row().classes('w-full justify-center'):
-        ui.label('GeekCon 2023 Trolley Problem Game').classes('text-h4')
-    ui.separator()
-    first_random = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
-    print(first_random)
-    selected_image_a, selected_image_b, text_a, text_b = refresh_choices(first_random, image_files_a, image_files_b)
-    grid = ui.grid(columns=2)#.classes('w-full') #.classes('w-full absolute-center')
-    display_index(first_random, selected_image_a, selected_image_b, text_a, text_b)
-    
-    with ui.row().classes('w-full justify-center'):
-        # ui.label('GeekCon 2023 Trolley Problem Game').classes('text-h4')
-        dark = ui.dark_mode()
-        with ui.grid(columns=3).classes('absolute-bottom'):
-            ui.label('Switch mode:')
-            ui.button('Dark', on_click=dark.enable)
-            ui.button('Light', on_click=dark.disable)
-    ui.run(port=5000)
+    arduino = ArduinoController(port="/dev/ttyACM0")
+    if arduino.port_opened_successfully:
+        print("Arduino is Connected!")
+    else:
+        print("Arduino is Disconnected!")
+    try:
+        # Get the list of image files from both folders
+        image_files_a = [filename for filename in os.listdir(folder_a_path) if filename.endswith((".jpg", ".png"))]
+        image_files_b = [filename for filename in os.listdir(folder_b_path) if filename.endswith((".jpg", ".png"))]
+        print("got", str(len(image_files_a))," files on A")
+        print("got", str(len(image_files_b))," files on B")
+        with ui.row().classes('w-full justify-center'):
+            ui.label('GeekCon 2023 Trolley Problem Game').classes('text-h4')
+        ui.separator()
+        first_random = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
+        print(first_random)
+        selected_image_a, selected_image_b, text_a, text_b = refresh_choices(first_random, image_files_a, image_files_b)
+        grid = ui.grid(columns=2)#.classes('w-full') #.classes('w-full absolute-center')
+        display_index(first_random, selected_image_a, selected_image_b, text_a, text_b)
+        
+        with ui.row().classes('w-full justify-center'):
+            # ui.label('GeekCon 2023 Trolley Problem Game').classes('text-h4')
+            dark = ui.dark_mode()
+            with ui.grid(columns=3).classes('absolute-bottom'):
+                ui.label('Switch mode:')
+                ui.button('Dark', on_click=dark.enable)
+                ui.button('Light', on_click=dark.disable)
+        ui.run(port=5000)
+    except KeyboardInterrupt:
+            print("Exiting...")
+            arduino.close_connection()

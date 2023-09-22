@@ -1,8 +1,14 @@
 import serial
 import time
+import platform
 
-# Define the Arduino serial port (change this to your actual port)
-arduino_port = 'COM3' #'/dev/ttyUSB0'  # Replace with your Arduino's port (e.g., 'COM3' on Windows)
+# Detect the operating system and set the Arduino serial port accordingly
+if platform.system() == "Windows":
+    arduino_port = 'COM3'  # Replace with the correct COM port for Windows
+elif platform.system() == "Linux":
+    arduino_port = '/dev/ttyACM0'  # Replace with the correct serial port for Linux
+else:
+    raise Exception("Unsupported operating system")
 
 # Establish a serial connection with the Arduino
 ser = serial.Serial(arduino_port, 9600, timeout=1)
