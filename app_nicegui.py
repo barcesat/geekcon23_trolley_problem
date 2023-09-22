@@ -39,18 +39,18 @@ def refresh_choices(random_index, image_files_a, image_files_b):
 def display_index(random_index, selected_image_a, selected_image_b, text_a, text_b):
         grid.clear()
         with grid:
-            with ui.interactive_image('static/images/A/'+selected_image_a).style('max-height: 300px w-1/2').props('flat bordered') as image_holder_a:
-                a_button = ui.button(text=text_a, on_click=lambda: select_image('A')).classes('absolute top-10 absolute-center text-h4')
+            with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: select_image('A')).style('max-height: 300px w-1/2').props('flat bordered') as image_holder_a:
+                a_button = ui.button(text=text_a, on_click=lambda: select_image('A'), color="blue").classes('text-h3 w-full absolute-top justify-center')
 
-            with ui.interactive_image('static/images/B/'+selected_image_b).style('max-height: 300px w-1/2').props('flat bordered')  as image_holder_b:
-                b_button = ui.button(text=text_b, on_click=lambda: select_image('B')).classes('absolute top-10 absolute-center text-h4')
+            with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: select_image('B')).style('max-height: 300px w-1/2').props('flat bordered')  as image_holder_b:
+                b_button = ui.button(text=text_b, on_click=lambda: select_image('B'), color="red").classes('text-h3 w-full absolute-top justify-center')
 
         with ui.row():
             ui.label('index: ' +str(random_index)).classes('vertical-bottom')
 
 def select_image(selection):
     ui.notify(selection)
-    # selected_image = request.form.get('selected_image')
+    print("user has selected: ",selection)
     random_index = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
     selected_image_a, selected_image_b, text_a, text_b = refresh_choices(random_index, image_files_a, image_files_b)
     # Handle user's selection (e.g., load the selected image, update text, etc.)

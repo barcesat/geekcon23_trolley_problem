@@ -15,3 +15,9 @@ TODO:
 "S" - stop train (LOW relay 3)
 "1" - choose track 1 (move servo to 0 degrees)
 "2" - choose track 2 (move servo to 180 degrees)
+
+To install:
+pip install -r requirements.txt
+
+To Run:
+python3 app_nicegui.py
