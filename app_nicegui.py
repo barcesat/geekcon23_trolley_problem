@@ -9,24 +9,45 @@ folder_a_path = 'static/images/A/'
 folder_b_path = 'static/images/B/'
 descision_timeout_increment = 0.1
 descision_timeout = 10.0
+user_has_selected = False
+current_selection = "NONE"
+current_selection_text = "NONE"
 
 def update_timer():
+    global user_has_selected
     slider.set_value((slider.value + 0.1) % 10.1)
     # print (slider.value)
-    if slider.value >= 10.0:
+    
+    if slider.value >= 10.0 and user_has_selected == True: #timer out - restart
+        print("time up - selection has been made")
         slider.set_value(0.0)
         countdown.deactivate()
-        select_image("NONE")
+        countdown.activate()
+        user_has_selected = False
+        select_image(current_selection,current_selection_text)
+    
+    elif slider.value >= 10.0 and user_has_selected == False: #timeout
+        print("timeout")
+        slider.set_value(0.0)
+        countdown.deactivate()
+        select_image("NONE", "NONE")
 
-def refresh_choices(random_index, image_files_a, image_files_b):
+def make_selection(selection, selection_text):
+    global user_has_selected, current_selection, current_selection_text
+    current_selection = selection
+    current_selection_text = selection_text
+    user_has_selected = True
+
+
+def refresh_choices(index, image_files_a, image_files_b):
     # Check if there are images in both folders
     if not image_files_a or not image_files_b:
         print("No image files found in one or both of the specified folders.")
     else:
         # Randomly select an index
-        print("selecting choice index: "+str(random_index))
+        print("selecting choice index: "+str(index))
         # Select the corresponding images
-        selected_image_a = image_files_a[random_index]
+        selected_image_a = image_files_a[index]
         selected_image_b = selected_image_a
         print("A: ", selected_image_a, "B: ", selected_image_b)
 
@@ -48,37 +69,41 @@ def refresh_choices(random_index, image_files_a, image_files_b):
         
         return selected_image_a, selected_image_b, text_a, text_b
 
-def display_index(random_index, selected_image_a, selected_image_b, text_a, text_b):
+def display_index(index, selected_image_a, selected_image_b, text_a, text_b):
     grid.clear()
     with grid:
-        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: select_image('A')).style(
+        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: make_selection('A', text_a)).style(
             'max-height: 300px  width: 500px').props('flat bordered') as image_holder_a:
-            a_button = ui.button(text=text_a, on_click=lambda: select_image('A'), color="blue").classes('text-h3 w-full absolute-top justify-center')
+            a_button = ui.button(text=text_a, on_click=lambda: make_selection('A', text_a), color="blue").classes('text-h3 w-full absolute-top justify-center')
 
-        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: select_image('B')).style(
+        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: make_selection('B', text_b)).style(
             'max-height: 300px width: 500px').props('flat bordered')  as image_holder_b:
-            b_button = ui.button(text=text_b, on_click=lambda: select_image('B'), color="red").classes('text-h3 w-full absolute-top justify-center')
+            b_button = ui.button(text=text_b, on_click=lambda: make_selection('B', text_b), color="red").classes('text-h3 w-full absolute-top justify-center')
 
         with ui.row():
-            ui.label('index: ' +str(random_index)).classes('vertical-bottom')
+            ui.label('index: ' +str(index)).classes('vertical-bottom')
 
-def select_image(selection):
-    
-    print("user has selected: ",selection)
-    random_index = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
+def select_image(selection, selection_text):
+    global user_has_selected
+    random_index = random.randint(0, max(len(image_files_a), len(image_files_b)) - 1)
     selected_image_a, selected_image_b, text_a, text_b = refresh_choices(random_index, image_files_a, image_files_b)
-    
-    if selection == "A":
-        ui.notify("You have selected: "+ text_a, multi_line=True, classes='multi-line-notification')
-    elif selection == "A":
-        ui.notify("You have selected: "+ text_b, multi_line=True, classes='multi-line-notification')
- 
     if selection == "NONE":
         ui.notify("Abstention is just as worse as taking an action!", type='negative',classes='multi-line-notification')
         # countdown.deactivate()
         countdown.activate()
         return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
     
+    elif selection == "A":
+        ui.notify("You have selected: "+ selection_text, multi_line=True, classes='multi-line-notification')
+        # user_has_selected = True
+    
+    elif selection == "B":
+        ui.notify("You have selected: "+ selection_text, multi_line=True, classes='multi-line-notification')
+        # user_has_selected = True
+    
+    print("user has selected: ",selection, selection_text)
+    
+
     # Implement your logic here based on 'selected_image'
     if arduino.port_opened_successfully:
         try:
@@ -115,6 +140,7 @@ if __name__ in {"__main__", "__mp_main__"}:
             ui.label('GeekCon 2023 Trolley Problem Game').classes('text-h4')
         ui.separator()
         slider = ui.slider(min=0, max=10, value=0)
+        user_has_selected = False
         countdown = ui.timer(descision_timeout_increment, lambda: update_timer())#select_image('NONE'))#, once=True)
         
         selected_image_a, selected_image_b, text_a, text_b = refresh_choices(first_random, image_files_a, image_files_b)
@@ -128,6 +154,7 @@ if __name__ in {"__main__", "__mp_main__"}:
                 ui.label('Switch mode:')
                 ui.button('Dark', on_click=dark.enable)
                 ui.button('Light', on_click=dark.disable)
+        countdown.activate()
         ui.run(port=5000)
 
     except KeyboardInterrupt:
