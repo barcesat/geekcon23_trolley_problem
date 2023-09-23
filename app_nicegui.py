@@ -72,12 +72,10 @@ def refresh_choices(index, image_files_a, image_files_b):
 def display_index(index, selected_image_a, selected_image_b, text_a, text_b):
     grid.clear()
     with grid:
-        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: make_selection('A', text_a)).style(
-            'max-height: 300px  width: 500px').props('flat bordered') as image_holder_a:
+        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: make_selection('A', text_a)).props('flat bordered') as image_holder_a:
             a_button = ui.button(text=text_a, on_click=lambda: make_selection('A', text_a), color="blue").classes('text-h3 w-full absolute-top justify-center')
 
-        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: make_selection('B', text_b)).style(
-            'max-height: 300px width: 500px').props('flat bordered')  as image_holder_b:
+        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: make_selection('B', text_b)).props('flat bordered')  as image_holder_b:
             b_button = ui.button(text=text_b, on_click=lambda: make_selection('B', text_b), color="red").classes('text-h3 w-full absolute-top justify-center')
 
         with ui.row():
@@ -89,7 +87,7 @@ def select_image(selection, selection_text):
     selected_image_a, selected_image_b, text_a, text_b = refresh_choices(random_index, image_files_a, image_files_b)
     if selection == "NONE":
         ui.notify("Abstention is just as worse as taking an action!", type='negative',classes='multi-line-notification')
-        # countdown.deactivate()
+        countdown.deactivate()
         countdown.activate()
         return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
     
@@ -102,7 +100,6 @@ def select_image(selection, selection_text):
         # user_has_selected = True
     
     print("user has selected: ",selection, selection_text)
-    
 
     # Implement your logic here based on 'selected_image'
     if arduino.port_opened_successfully:
@@ -119,8 +116,16 @@ def select_image(selection, selection_text):
     
     return display_index(random_index, selected_image_a, selected_image_b, text_a, text_b)
 
+def new_game_time():
+    data = arduino.read_response()
+    if data == "out station":
+        print("***************************** NEW GAME ****************************")
+        return True
+    else:
+        return False
+
 if __name__ in {"__main__", "__mp_main__"}:
-    arduino = ArduinoController()#port="/dev/ttyACM0")
+    arduino = ArduinoController(port="COM3")
     if arduino.port_opened_successfully:
         print("Arduino is Connected!")
     else:
@@ -145,7 +150,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         
         selected_image_a, selected_image_b, text_a, text_b = refresh_choices(first_random, image_files_a, image_files_b)
 
-        grid = ui.grid(columns=2)
+        grid = ui.grid(columns=2).style("grid-auto-columns: auto; grid-auto-columns: auto; align-self: center;")
         display_index(first_random, selected_image_a, selected_image_b, text_a, text_b)
         
         with ui.row().classes('w-full justify-center'):
@@ -154,7 +159,20 @@ if __name__ in {"__main__", "__mp_main__"}:
                 ui.label('Switch mode:')
                 ui.button('Dark', on_click=dark.enable)
                 ui.button('Light', on_click=dark.disable)
-        countdown.activate()
+        
+        if arduino.port_opened_successfully:
+            new_game = new_game_time()
+            if new_game:
+                print("new game")
+                new_random = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
+                refresh_choices(new_random, image_files_a, image_files_b)
+        else:
+            countdown.activate()
+        # print("SGDFGSD")
+        
+            # countdown.activate()
+
+        
         ui.run(port=5000)
 
     except KeyboardInterrupt:
