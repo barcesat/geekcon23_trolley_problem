@@ -15,7 +15,7 @@ current_selection_text = "NONE"
 
 def update_timer():
     global user_has_selected
-    slider.set_value((slider.value + 0.1) % 10.1)
+    slider.set_value((slider.value + 0.1) % (descision_timeout+0.1))
     # print (slider.value)
     
     if slider.value >= 10.0 and user_has_selected == True: #timer out - restart
@@ -45,7 +45,7 @@ def refresh_choices(index, image_files_a, image_files_b):
         print("No image files found in one or both of the specified folders.")
     else:
         # Randomly select an index
-        print("selecting choice index: "+str(index))
+        print("selecting choice index: "+str(index),image_files_a[index])
         # Select the corresponding images
         selected_image_a = image_files_a[index]
         selected_image_b = selected_image_a
@@ -72,18 +72,19 @@ def refresh_choices(index, image_files_a, image_files_b):
 def display_index(index, selected_image_a, selected_image_b, text_a, text_b):
     grid.clear()
     with grid:
-        with ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: make_selection('A', text_a)).props('flat bordered') as image_holder_a:
-            a_button = ui.button(text=text_a, on_click=lambda: make_selection('A', text_a), color="blue").classes('text-h3 w-full absolute-top justify-center')
+        a_button = ui.button(text=text_a, on_click=lambda: make_selection('A', text_a), color="blue").classes('text-h4 ')
+        b_button = ui.button(text=text_b, on_click=lambda: make_selection('B', text_b), color="red").classes('text-h4 ')
 
-        with ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: make_selection('B', text_b)).props('flat bordered')  as image_holder_b:
-            b_button = ui.button(text=text_b, on_click=lambda: make_selection('B', text_b), color="red").classes('text-h3 w-full absolute-top justify-center')
+        ui.interactive_image('static/images/A/'+selected_image_a, on_mouse=lambda: make_selection('A', text_a)).props('flat bordered')
+        ui.interactive_image('static/images/B/'+selected_image_b, on_mouse=lambda: make_selection('B', text_b)).props('flat bordered')
+        
 
         with ui.row():
             ui.label('index: ' +str(index)).classes('vertical-bottom')
 
 def select_image(selection, selection_text):
     global user_has_selected
-    random_index = random.randint(0, max(len(image_files_a), len(image_files_b)) - 1)
+    random_index = random.randint(0, len(image_files_a) - 1)
     selected_image_a, selected_image_b, text_a, text_b = refresh_choices(random_index, image_files_a, image_files_b)
     if selection == "NONE":
         ui.notify("Abstention is just as worse as taking an action!", type='negative',classes='multi-line-notification')
@@ -150,7 +151,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         
         selected_image_a, selected_image_b, text_a, text_b = refresh_choices(first_random, image_files_a, image_files_b)
 
-        grid = ui.grid(columns=2).style("grid-auto-columns: auto; grid-auto-columns: auto; align-self: center;")
+        grid = ui.grid(columns=2).style("grid-auto-columns: auto; grid-auto-rows: auto; align-self: center;")
         display_index(first_random, selected_image_a, selected_image_b, text_a, text_b)
         
         with ui.row().classes('w-full justify-center'):
@@ -160,14 +161,14 @@ if __name__ in {"__main__", "__mp_main__"}:
                 ui.button('Dark', on_click=dark.enable)
                 ui.button('Light', on_click=dark.disable)
         
-        if arduino.port_opened_successfully:
-            new_game = new_game_time()
-            if new_game:
-                print("new game")
-                new_random = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
-                refresh_choices(new_random, image_files_a, image_files_b)
-        else:
-            countdown.activate()
+        # if arduino.port_opened_successfully:
+        #     new_game = new_game_time()
+        #     if new_game:
+        #         print("new game")
+        #         new_random = random.randint(0, min(len(image_files_a), len(image_files_b)) - 1)
+        #         refresh_choices(new_random, image_files_a, image_files_b)
+        # else:
+        countdown.activate()
         # print("SGDFGSD")
         
             # countdown.activate()

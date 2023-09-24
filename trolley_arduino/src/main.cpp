@@ -9,14 +9,15 @@ Servo myservo1;
 Servo myservo2;
 Servo stopservo;
 
-
 const int relay1Pin = 2; // Pin connected to Relay 1
-const int mode0 = 45;
-const int mode1 = 0;
-const int up = 45;
-const int down = 0;
+const int mode0 = 110;
+const int mode1 = 55;
+const int up = 130;
+const int down = 35;
 const int interruptPin = 3;
 volatile bool coming = 1;
+
+
 // const int relay2Pin = 3; // Pin connected to Relay 2
 // const int relay3Pin = 4; // Pin connected to Relay 3
 
@@ -45,9 +46,9 @@ void setup() {
   // Attach the servo to pin 9
   bigloopservo1.attach(9);
   bigloopservo2.attach(10);
-  myservo1.attach(11);
-  myservo2.attach(12);
-  stopservo.attach(13);
+  myservo1.attach(5);
+  myservo2.attach(6);
+  stopservo.attach(12);
 
   // Set relay pins as OUTPUT
   pinMode(relay1Pin, OUTPUT);
@@ -58,9 +59,9 @@ void setup() {
 
 
     //pinMode(inPin, INPUT);    // sets the digital pin 7 as input
-    Timer1.initialize(1000000); // set a timer of length 1sec
-    attachInterrupt(1, blink, CHANGE);  //INT0
-    Timer1.attachInterrupt( timerIsr ); // attach the service routine here
+    // Timer1.initialize(1000000); // set a timer of length 1sec
+    // attachInterrupt(1, blink, CHANGE);  //INT0
+    // Timer1.attachInterrupt( timerIsr ); // attach the service routine here
 
 
 }
@@ -125,8 +126,8 @@ void executeCommand(char command) {
     //   break;
     case 'R': //restart - the train is doing the big loop
       stopservo.write(down);
-      bigloopservo1.write(mode0);
-      bigloopservo2.write(mode0);
+      // bigloopservo1.write(mode0);
+      // bigloopservo2.write(mode0);
       Serial.println("Command Restart executed");
       break;
     case 'S': //stops the train
@@ -141,17 +142,17 @@ void executeCommand(char command) {
       digitalWrite(relay1Pin, LOW);
       break;
     case '1': //enters small loop, option 1
-      bigloopservo1.write(mode1);
+      bigloopservo1.write(mode0);
       bigloopservo2.write(mode1);
-      myservo1.write(mode1);
-      myservo2.write(mode0); //one should go the opposite way
+      myservo1.write(mode0);
+      myservo2.write(mode1); //one should go the opposite way
       Serial.println("Command 1 executed");
       break;
     case '2': //enters small loop, option 2
       bigloopservo1.write(mode1);
-      bigloopservo2.write(mode1);
-      myservo1.write(mode0);
-      myservo2.write(mode1); //one should go the opposite way
+      bigloopservo2.write(mode0);
+      myservo1.write(mode1);
+      myservo2.write(mode0); //one should go the opposite way
       Serial.println("Command 2 executed");
       break;
 

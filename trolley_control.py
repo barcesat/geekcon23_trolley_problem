@@ -5,10 +5,11 @@ import platform
 class ArduinoController:
     def __init__(self, port=None):
         self.port_opened_successfully = False
+        # self.ser = None  # Initialize ser as None
         if port is None:
             # Detect the operating system and set the Arduino serial port accordingly
             if platform.system() == "Windows":
-                self.arduino_port = 'COM3'  # Replace with the correct COM port for Windows
+                self.arduino_port = 'COM4'  # Replace with the correct COM port for Windows
             elif platform.system() == "Linux":
                 self.arduino_port = '/dev/ttyACM0'  # Replace with the correct serial port for Linux
             else:
@@ -28,6 +29,12 @@ class ArduinoController:
         if not self.port_opened_successfully:
             return "Port not open successfully"
         self.ser.write(command.encode())
+        response = self.ser.readline().decode().strip()
+        return response
+
+    def read_response(self):
+        if not self.port_opened_successfully:
+            return "Port not open successfully"
         response = self.ser.readline().decode().strip()
         return response
 
